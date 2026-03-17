@@ -16,30 +16,22 @@
         </tr>
       </thead>
       <tbody>
+        {{#if meseros}}
+        {{#each meseros}}
         <tr>
-          <td>Andrea Solís</td>
-          <td>1-2345-6789</td>
-          <td>8888-0001</td>
-          <td>andrea@puravia.cr</td>
-          <td>Mañana</td>
-          <td>asolís</td>
+          <td>{{nombre}}</td>
+          <td>{{identificacion}}</td>
+          <td>{{telefono}}</td>
+          <td>{{correo}}</td>
+          <td>{{turno}}</td>
+          <td>{{usuario_id}}</td>
         </tr>
+        {{/each}}
+        {{else}}
         <tr>
-          <td>Carlos Jiménez</td>
-          <td>2-3456-7890</td>
-          <td>8888-0002</td>
-          <td>carlos@puravia.cr</td>
-          <td>Tarde</td>
-          <td>cjimenez</td>
+          <td colspan="6">No hay meseros registrados.</td>
         </tr>
-        <tr>
-          <td>Lucía Araya</td>
-          <td>3-4567-8901</td>
-          <td>8888-0003</td>
-          <td>lucia@puravia.cr</td>
-          <td>Noche</td>
-          <td>laraya</td>
-        </tr>
+        {{/if}}
       </tbody>
     </table>
   </section>
@@ -90,7 +82,7 @@
       </div>
 
       <div class="botones">
-        <button class="btn" type="button">Guardar / Actualizar</button>
+        <button class="btn" type="button" onclick="GuardarActualizarMesero()">Guardar / Actualizar</button>
         <button class="btn btn-secundario" type="button">Eliminar</button>
         <button class="btn btn-secundario" type="reset">Limpiar</button>
       </div>
@@ -101,3 +93,5 @@
     </form>
   </section>
 </main>
+
+<script src="/javascripts/admin-meseros-logica.js"></script>

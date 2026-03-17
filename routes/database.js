@@ -1,18 +1,21 @@
-const sqlserver = require('mssql/msnodesqlv8');
+const sql = require('mssql/msnodesqlv8');
 
+// Conexión con autenticación integrada a la BD puravia
 const config = {
-    connectionString:
-        "Driver={ODBC Driver 17 for SQL Server};Server=localhost;Database=puravia;Trusted_Connection=yes;"
+  connectionString:
+    'Driver={ODBC Driver 17 for SQL Server};Server=localhost;Database=puravia;Trusted_Connection=yes;',
 };
 
-async function conectar() {
-    try {
-        await sql.connect(config);
-        console.log("Conectado a SQL Server");
-    } catch (err) {
-        console.log(err);
-    }
-}
+// Pool compartido para reutilizar conexiones
+const poolPromise = new sql.ConnectionPool(config)
+  .connect()
+  .then(pool => {
+    console.log('Conectado a SQL Server');
+    return pool;
+  })
+  .catch(err => {
+    console.error('Error al conectar a SQL Server', err);
+    throw err;
+  });
 
-conectar();
-module.exports = sqlserver;
+module.exports = { sql, poolPromise };

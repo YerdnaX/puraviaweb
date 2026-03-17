@@ -12,6 +12,7 @@ var productosRouter = require('./routes/productos');
 var quienesSomosRouter = require('./routes/quienes-somos');
 var serviciosRouter = require('./routes/servicios');
 var loginRouter = require('./routes/login');
+var APIRouter = require('./routes/api');
 
 var app = express();
 
@@ -34,6 +35,7 @@ app.use('/productos', productosRouter);
 app.use('/quienes-somos', quienesSomosRouter);
 app.use('/servicios', serviciosRouter);
 app.use('/login', loginRouter);
+app.use ('/api', APIRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
