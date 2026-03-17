@@ -10,7 +10,7 @@ async function GuardarActualizarMesero() {
             telefono: document.getElementById('telefono').value,
             correo: document.getElementById('correo').value,
             turno: document.getElementById('turno').value,
-            usuario_id: document.getElementById('usuario').value,
+            usuario: document.getElementById('usuario').value,
             password: document.getElementById('password').value,
             observaciones: document.getElementById('observaciones').value
         })

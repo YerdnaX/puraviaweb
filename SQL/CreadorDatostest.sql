@@ -5,7 +5,7 @@ GO
 USE puravia;
 GO
 
--- Limpieza idempotente
+-- Limpieza total
 IF OBJECT_ID('dbo.orden_detalle', 'U') IS NOT NULL DROP TABLE dbo.orden_detalle;
 IF OBJECT_ID('dbo.orden', 'U') IS NOT NULL DROP TABLE dbo.orden;
 IF OBJECT_ID('dbo.reserva', 'U') IS NOT NULL DROP TABLE dbo.reserva;
