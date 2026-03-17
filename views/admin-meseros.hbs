@@ -1,0 +1,103 @@
+﻿<main class="contenedor">
+  <section class="seccion">
+    <h1 class="titulo-seccion">Administración de meseros</h1>
+    <p class="subtitulo">Consulta, crea, modifica o elimina meseros. Asigna credenciales de acceso de forma manual.</p>
+
+    <h2 class="titulo-seccion">Listado de meseros</h2>
+    <table class="tabla-resumen">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Identificación</th>
+          <th>Teléfono</th>
+          <th>Correo</th>
+          <th>Turno</th>
+          <th>Usuario</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Andrea Solís</td>
+          <td>1-2345-6789</td>
+          <td>8888-0001</td>
+          <td>andrea@puravia.cr</td>
+          <td>Mañana</td>
+          <td>asolís</td>
+        </tr>
+        <tr>
+          <td>Carlos Jiménez</td>
+          <td>2-3456-7890</td>
+          <td>8888-0002</td>
+          <td>carlos@puravia.cr</td>
+          <td>Tarde</td>
+          <td>cjimenez</td>
+        </tr>
+        <tr>
+          <td>Lucía Araya</td>
+          <td>3-4567-8901</td>
+          <td>8888-0003</td>
+          <td>lucia@puravia.cr</td>
+          <td>Noche</td>
+          <td>laraya</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="seccion">
+    <h2 class="titulo-seccion">Crear o modificar mesero</h2>
+    <form class="formulario">
+      <div class="grid-formularios">
+        <div class="campo">
+          <label for="nombre">Nombre completo</label>
+          <input id="nombre" type="text" placeholder="Nombre y apellidos">
+        </div>
+        <div class="campo">
+          <label for="id">Identificación</label>
+          <input id="id" type="text" placeholder="Cédula o identificación">
+        </div>
+        <div class="campo">
+          <label for="telefono">Teléfono</label>
+          <input id="telefono" type="tel" placeholder="Ej. 8888-8888">
+        </div>
+        <div class="campo">
+          <label for="correo">Correo</label>
+          <input id="correo" type="email" placeholder="correo@ejemplo.com">
+        </div>
+        <div class="campo">
+          <label for="turno">Turno</label>
+          <select id="turno">
+            <option>Mañana</option>
+            <option>Tarde</option>
+            <option>Noche</option>
+            <option>Fin de semana</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-formularios">
+        <div class="campo">
+          <label for="usuario">Usuario</label>
+          <input id="usuario" type="text" placeholder="Usuario para acceso">
+        </div>
+        <div class="campo">
+          <label for="password">Contraseña</label>
+          <input id="password" type="password" placeholder="Contraseña">
+        </div>
+        <div class="campo">
+          <label for="observaciones">Observaciones</label>
+          <textarea id="observaciones" placeholder="Notas adicionales"></textarea>
+        </div>
+      </div>
+
+      <div class="botones">
+        <button class="btn" type="button">Guardar / Actualizar</button>
+        <button class="btn btn-secundario" type="button">Eliminar</button>
+        <button class="btn btn-secundario" type="reset">Limpiar</button>
+      </div>
+
+      <div class="botones" style="margin-top:1.8rem;">
+        <a class="btn btn-secundario" href="/admin">Atrás</a>
+      </div>
+    </form>
+  </section>
+</main>

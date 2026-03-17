@@ -1,0 +1,104 @@
+﻿<main class="contenedor">
+  <section class="seccion">
+    <h1 class="titulo-seccion">Administración de usuarios</h1>
+    <p class="subtitulo">Gestiona cuentas de clientes, meseros y administradores. Asigna roles y estados de acceso.</p>
+
+    <h2 class="titulo-seccion">Usuarios registrados</h2>
+    <table class="tabla-resumen">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Correo</th>
+          <th>Usuario</th>
+          <th>Rol</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Andrea Solís</td>
+          <td>andrea@puravia.cr</td>
+          <td>asolis</td>
+          <td>Mesero</td>
+          <td><span class="estado estado-libre">Activo</span></td>
+        </tr>
+        <tr>
+          <td>Carlos Jiménez</td>
+          <td>carlos@puravia.cr</td>
+          <td>cjimenez</td>
+          <td>Mesero</td>
+          <td><span class="estado estado-libre">Activo</span></td>
+        </tr>
+        <tr>
+          <td>Lucía Araya</td>
+          <td>lucia@puravia.cr</td>
+          <td>laraya</td>
+          <td>Administrador</td>
+          <td><span class="estado estado-reservada">Suspendido</span></td>
+        </tr>
+        <tr>
+          <td>Invitado demo</td>
+          <td>cliente@ejemplo.com</td>
+          <td>cliente01</td>
+          <td>Cliente</td>
+          <td><span class="estado estado-libre">Activo</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="seccion">
+    <h2 class="titulo-seccion">Crear o modificar usuario</h2>
+    <form class="formulario">
+      <div class="grid-formularios">
+        <div class="campo">
+          <label for="nombre">Nombre completo</label>
+          <input id="nombre" type="text" placeholder="Nombre y apellidos">
+        </div>
+        <div class="campo">
+          <label for="correo">Correo</label>
+          <input id="correo" type="email" placeholder="correo@ejemplo.com">
+        </div>
+        <div class="campo">
+          <label for="usuario">Usuario</label>
+          <input id="usuario" type="text" placeholder="Usuario de acceso">
+        </div>
+        <div class="campo">
+          <label for="estado">Estado</label>
+          <select id="estado">
+            <option>Activo</option>
+            <option>Suspendido</option>
+            <option>Bloqueado</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-formularios">
+        <div class="campo">
+          <label for="password">Contraseña</label>
+          <input id="password" type="password" placeholder="Contraseña temporal o nueva">
+        </div>
+        <div class="campo">
+          <label for="confirmar">Confirmar contraseña</label>
+          <input id="confirmar" type="password" placeholder="Repite la contraseña">
+        </div>
+        <div class="campo">
+          <label for="notas">Notas</label>
+          <textarea id="notas" placeholder="Permisos especiales, restricciones, etc."></textarea>
+        </div>
+      </div>
+
+      <div class="botones">
+        <button class="btn" type="button">Guardar / Actualizar</button>
+        <button class="btn btn-secundario" type="button">Eliminar</button>
+        <button class="btn btn-secundario" type="reset">Limpiar</button>
+      </div>
+
+      <div class="botones" style="margin-top:1.8rem;">
+        <a class="btn btn-secundario" href="/admin">Atrás</a>
+      </div>
+    </form>
+  </section>
+</main>
+
+
+
