@@ -24,8 +24,21 @@ router.get('/admin-meseros', async function (req, res, next) {
       }
 })
 
-router.get('/admin-usuarios', function (req, res, next) {
-  res.render('admin-usuarios')
+router.get('/admin-usuarios', async function (req, res, next) {
+  try {
+    const pool = await db.poolPromise
+    const result = await pool
+      .request()
+      .query(
+        `SELECT id, nombre, correo, username, rol, activo, notas
+         FROM usuario
+         ORDER BY nombre`
+      )
+
+    res.render('admin-usuarios', { usuarios: result.recordset })
+  } catch (err) {
+    next(err)
+  }
 })
 
 

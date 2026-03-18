@@ -12,37 +12,32 @@
           <th>Usuario</th>
           <th>Rol</th>
           <th>Estado</th>
+          <th>Notas</th>
         </tr>
       </thead>
       <tbody>
+        {{#if usuarios}}
+        {{#each usuarios}}
         <tr>
-          <td>Andrea Solís</td>
-          <td>andrea@puravia.cr</td>
-          <td>asolis</td>
-          <td>Mesero</td>
-          <td><span class="estado estado-libre">Activo</span></td>
+          <td>{{nombre}}</td>
+          <td>{{correo}}</td>
+          <td>{{username}}</td>
+          <td>{{rol}}</td>
+          <td>
+            {{#if activo}}
+              <span class="estado estado-libre">Activo</span>
+            {{else}}
+              <span class="estado estado-reservada">Inactivo</span>
+            {{/if}}
+          </td>
+          <td>{{notas}}</td>
         </tr>
+        {{/each}}
+        {{else}}
         <tr>
-          <td>Carlos Jiménez</td>
-          <td>carlos@puravia.cr</td>
-          <td>cjimenez</td>
-          <td>Mesero</td>
-          <td><span class="estado estado-libre">Activo</span></td>
+          <td colspan="6">No hay usuarios registrados.</td>
         </tr>
-        <tr>
-          <td>Lucía Araya</td>
-          <td>lucia@puravia.cr</td>
-          <td>laraya</td>
-          <td>Administrador</td>
-          <td><span class="estado estado-reservada">Suspendido</span></td>
-        </tr>
-        <tr>
-          <td>Invitado demo</td>
-          <td>cliente@ejemplo.com</td>
-          <td>cliente01</td>
-          <td>Cliente</td>
-          <td><span class="estado estado-libre">Activo</span></td>
-        </tr>
+        {{/if}}
       </tbody>
     </table>
   </section>
@@ -88,7 +83,7 @@
       </div>
 
       <div class="botones">
-        <button class="btn" type="button">Guardar / Actualizar</button>
+        <button class="btn" type="button" onclick="GuardarActualizarUsuario()">Guardar / Actualizar</button>
         <button class="btn btn-secundario" type="button">Eliminar</button>
         <button class="btn btn-secundario" type="reset">Limpiar</button>
       </div>
@@ -99,6 +94,8 @@
     </form>
   </section>
 </main>
+
+<script src="/javascripts/admin-usuarios-logica.js"></script>
 
 
 

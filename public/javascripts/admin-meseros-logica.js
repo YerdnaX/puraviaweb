@@ -1,29 +1,47 @@
 async function GuardarActualizarMesero() {
-    fetch('/api/insertarmesero', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            nombre: document.getElementById('nombre').value,
-            identificacion: document.getElementById('id').value,
-            telefono: document.getElementById('telefono').value,
-            correo: document.getElementById('correo').value,
-            turno: document.getElementById('turno').value,
-            usuario: document.getElementById('usuario').value,
-            password: document.getElementById('password').value,
-            observaciones: document.getElementById('observaciones').value
+    const nombre = document.getElementById('nombre').value.trim()
+    const identificacion = document.getElementById('id').value.trim()
+    const telefono = document.getElementById('telefono').value.trim()
+    const correo = document.getElementById('correo').value.trim()
+    const turno = document.getElementById('turno').value
+    const usuario = document.getElementById('usuario').value.trim()
+    const password = document.getElementById('password').value
+    const observaciones = document.getElementById('observaciones').value.trim()
+
+    if (!nombre || !identificacion || !usuario || !password) {
+        alert('Nombre, identificación, usuario y contraseña son obligatorios')
+        return
+    }
+
+    try {
+        const resp = await fetch('/api/insertarmesero', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                nombre,
+                identificacion,
+                telefono,
+                correo,
+                turno,
+                usuario,
+                password,
+                observaciones
+            })
         })
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            location.reload();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+
+        const data = await resp.json()
+        if (!resp.ok || data.error) {
+            alert(data.error || 'Error al guardar mesero')
+            return
+        }
+
+        location.reload()
+    } catch (error) {
+        console.error('Error:', error)
+        alert('Error de red al guardar mesero')
+    }
 }
 
-// Expone la función al ámbito global (no usar export en scripts clásicos)
 window.GuardarActualizarMesero = GuardarActualizarMesero;

@@ -13,6 +13,7 @@
           <th>Correo</th>
           <th>Turno</th>
           <th>Usuario</th>
+          <th>Notas</th>
         </tr>
       </thead>
       <tbody>
@@ -25,11 +26,12 @@
           <td>{{correo}}</td>
           <td>{{turno}}</td>
           <td>{{usuario_id}}</td>
+          <td>{{observaciones}}</td>
         </tr>
         {{/each}}
         {{else}}
         <tr>
-          <td colspan="6">No hay meseros registrados.</td>
+          <td colspan="7">No hay meseros registrados.</td>
         </tr>
         {{/if}}
       </tbody>
