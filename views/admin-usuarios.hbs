@@ -13,12 +13,13 @@
           <th>Rol</th>
           <th>Estado</th>
           <th>Notas</th>
+          <th>Acciones</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="tabla-usuarios">
         {{#if usuarios}}
         {{#each usuarios}}
-        <tr>
+        <tr data-id="{{id}}" data-username="{{username}}">
           <td>{{nombre}}</td>
           <td>{{correo}}</td>
           <td>{{username}}</td>
@@ -31,11 +32,12 @@
             {{/if}}
           </td>
           <td>{{notas}}</td>
+          <td><button class="btn btn-secundario" type="button" onclick="EliminarUsuario({{id}})">Eliminar</button></td>
         </tr>
         {{/each}}
         {{else}}
         <tr>
-          <td colspan="6">No hay usuarios registrados.</td>
+          <td colspan="7">No hay usuarios registrados.</td>
         </tr>
         {{/if}}
       </tbody>
@@ -84,7 +86,6 @@
 
       <div class="botones">
         <button class="btn" type="button" onclick="GuardarActualizarUsuario()">Guardar / Actualizar</button>
-        <button class="btn btn-secundario" type="button">Eliminar</button>
         <button class="btn btn-secundario" type="reset">Limpiar</button>
       </div>
 
@@ -96,6 +97,5 @@
 </main>
 
 <script src="/javascripts/admin-usuarios-logica.js"></script>
-
 
 

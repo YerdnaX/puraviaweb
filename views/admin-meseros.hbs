@@ -14,12 +14,13 @@
           <th>Turno</th>
           <th>Usuario</th>
           <th>Notas</th>
+          <th>Acciones</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="tabla-meseros">
         {{#if meseros}}
         {{#each meseros}}
-        <tr>
+        <tr data-id="{{id}}" data-identificacion="{{identificacion}}" data-usuario-id="{{usuario_id}}">
           <td>{{nombre}}</td>
           <td>{{identificacion}}</td>
           <td>{{telefono}}</td>
@@ -27,11 +28,12 @@
           <td>{{turno}}</td>
           <td>{{usuario_id}}</td>
           <td>{{observaciones}}</td>
+          <td><button class="btn btn-secundario" type="button" onclick="EliminarMesero({{id}}, {{usuario_id}})">Eliminar</button></td>
         </tr>
         {{/each}}
         {{else}}
         <tr>
-          <td colspan="7">No hay meseros registrados.</td>
+          <td colspan="8">No hay meseros registrados.</td>
         </tr>
         {{/if}}
       </tbody>

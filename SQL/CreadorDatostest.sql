@@ -42,7 +42,7 @@ CREATE TABLE dbo.mesero (
     observaciones    VARCHAR(400) NULL,
     fecha_ingreso    DATE NULL,
     creado_en        DATETIME2 NOT NULL DEFAULT (SYSDATETIME()),
-    CONSTRAINT FK_mesero_usuario FOREIGN KEY (usuario_id) REFERENCES dbo.usuario(id)
+    CONSTRAINT FK_mesero_usuario FOREIGN KEY (usuario_id) REFERENCES dbo.usuario(id) ON DELETE CASCADE
 );
 
 -- Mesas
@@ -76,7 +76,7 @@ CREATE TABLE dbo.orden (
     creada_en     DATETIME2 NOT NULL DEFAULT (SYSDATETIME()),
     cerrada_en    DATETIME2 NULL,
     CONSTRAINT FK_orden_mesa   FOREIGN KEY (mesa_id)   REFERENCES dbo.mesa(id),
-    CONSTRAINT FK_orden_mesero FOREIGN KEY (mesero_id) REFERENCES dbo.mesero(id)
+    CONSTRAINT FK_orden_mesero FOREIGN KEY (mesero_id) REFERENCES dbo.mesero(id) ON DELETE CASCADE
 );
 
 -- Detalle de Ordenes
@@ -88,7 +88,7 @@ CREATE TABLE dbo.orden_detalle (
     precio_unit    DECIMAL(10,2) NOT NULL,
     observaciones  VARCHAR(200) NULL,
     subtotal       AS (cantidad * precio_unit) PERSISTED,
-    CONSTRAINT FK_det_orden    FOREIGN KEY (orden_id)    REFERENCES dbo.orden(id),
+    CONSTRAINT FK_det_orden    FOREIGN KEY (orden_id)    REFERENCES dbo.orden(id) ON DELETE CASCADE,
     CONSTRAINT FK_det_producto FOREIGN KEY (producto_id) REFERENCES dbo.producto(id)
 );
 
