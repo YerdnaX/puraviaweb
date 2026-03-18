@@ -402,6 +402,38 @@ header {
   box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.18);
 }
 
+/* Dropdown de estado en la tabla de reservas */
+.tabla-resumen select.select-estado-reserva {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid #d8e4ec;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: #fdfefe;
+  min-width: 140px;
+  transition: border 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.tabla-resumen select.select-estado-reserva:focus {
+  outline: none;
+  border-color: var(--color-principal);
+  box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.18);
+}
+
+.tabla-resumen select.select-estado-reserva:hover {
+  background: #f7fbf9;
+}
+
+.chip {
+  display: inline-block;
+  background: #eef7f1;
+  color: var(--color-principal);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid #d0e9d8;
+}
+
 .grid-formularios {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));

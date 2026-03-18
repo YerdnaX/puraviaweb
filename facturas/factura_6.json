@@ -1,0 +1,44 @@
+{
+  "orden_id": 6,
+  "mesa": 1,
+  "estado": "abierta",
+  "creada_en": "2026-03-18T10:29:40.593Z",
+  "cerrada_en": null,
+  "items": [
+    {
+      "id": 9,
+      "producto": "Cafe chorreado",
+      "cantidad": 1,
+      "precio_unit": 1800,
+      "subtotal": 1800,
+      "observaciones": null
+    },
+    {
+      "id": 10,
+      "producto": "Cafe chorreado",
+      "cantidad": 1,
+      "precio_unit": 1800,
+      "subtotal": 1800,
+      "observaciones": null
+    },
+    {
+      "id": 11,
+      "producto": "Cafe chorreado",
+      "cantidad": 1,
+      "precio_unit": 1800,
+      "subtotal": 1800,
+      "observaciones": null
+    },
+    {
+      "id": 12,
+      "producto": "Cafe chorreado",
+      "cantidad": 1,
+      "precio_unit": 1800,
+      "subtotal": 1800,
+      "observaciones": null
+    }
+  ],
+  "subtotal": 7200,
+  "impuesto": 936,
+  "total": 8136
+}

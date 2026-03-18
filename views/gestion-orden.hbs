@@ -1,108 +1,103 @@
-﻿
+<main class="contenedor">
+  <section class="seccion">
+    <h1 class="titulo-seccion">Gestión de orden</h1>
+    <p class="subtitulo">Mesa seleccionada: {{#if mesa}}Mesa {{mesa}}{{else}}No especificada{{/if}}</p>
 
-  <main class="contenedor">
-    <section class="seccion">
-      <h1 class="titulo-seccion">Gestión de orden</h1>
-      <p class="subtitulo">Mesa seleccionada: (usa el número de la URL, ej. mesa 1, mesa 2...)</p>
-
-      <div class="seccion">
-        <h3>Productos en la orden</h3>
-        <table class="tabla-resumen">
-          <thead>
+    <div class="seccion">
+      <h3>Productos en la orden</h3>
+      <table class="tabla-resumen">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#if orden}}
+            {{#if detalles.length}}
+              {{#each detalles}}
+              <tr>
+                <td>{{nombre}}</td>
+                <td>{{cantidad}}</td>
+                <td>₡{{precio_unit}}</td>
+                <td>₡{{subtotal}}</td>
+              </tr>
+              {{/each}}
+            {{else}}
+              <tr>
+                <td colspan="4">La orden está vacía.</td>
+              </tr>
+            {{/if}}
+          {{else}}
             <tr>
-              <th>Producto</th>
-              <th>Cantidad</th>
-              <th>Precio</th>
-              <th>Subtotal</th>
+              <td colspan="4">La mesa no tiene orden activa.</td>
             </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Ejemplo: Casado con pollo</td>
-              <td>2</td>
-              <td>₡4 800</td>
-              <td>₡9 600</td>
-            </tr>
-            <tr>
-              <td>Ejemplo: Fresco de cas</td>
-              <td>2</td>
-              <td>₡1 400</td>
-              <td>₡2 800</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+          {{/if}}
+        </tbody>
+      </table>
+    </div>
 
-      <div class="grid-formularios">
-        <form class="formulario">
-          <h3>Agregar producto</h3>
-          <div class="campo">
-            <label for="producto">Producto</label>
-            <select id="producto" name="producto">
-              <option>Gallo pinto tradicional</option>
-              <option>Casado con pollo</option>
-              <option>Casado con res</option>
-              <option>Olla de carne</option>
-              <option>Fresco de cas</option>
-              <option>Horchata tica</option>
-              <option>Batido de mango</option>
-            </select>
-          </div>
-          <div class="campo">
-            <label for="cantidad">Cantidad</label>
-            <input id="cantidad" type="number" min="1" value="1">
-          </div>
-          <div class="campo">
-            <label for="observaciones">Observaciones</label>
-            <textarea id="observaciones" placeholder="Sin cebolla, bien tostado, etc."></textarea>
-          </div>
-          <div class="botones">
-            <button class="btn" type="button">Agregar a la orden</button>
-            <button class="btn btn-secundario" type="reset">Limpiar</button>
-          </div>
-        </form>
+    <div class="grid-formularios">
+      <form class="formulario">
+        <h3>Agregar producto</h3>
+        <div class="campo">
+          <label for="producto">Producto</label>
+          <select id="producto" name="producto" {{#unless orden}}disabled{{/unless}}>
+            {{#if productos.length}}
+              {{#each productos}}
+                <option value="{{id}}">{{nombre}} (₡{{precio}})</option>
+              {{/each}}
+            {{else}}
+              <option disabled>No hay productos activos</option>
+            {{/if}}
+          </select>
+        </div>
+        <div class="campo">
+          <label for="cantidad">Cantidad</label>
+          <input id="cantidad" type="number" min="1" value="1" {{#unless orden}}disabled{{/unless}}>
+        </div>
+        <div class="campo">
+          <label for="observaciones">Observaciones</label>
+          <textarea id="observaciones" placeholder="Sin cebolla, bien tostado, etc." {{#unless orden}}disabled{{/unless}}></textarea>
+        </div>
+        <div class="botones">
+          <button class="btn" type="button" onclick="AgregarAOrden()" {{#unless orden}}disabled{{/unless}}>Agregar a la orden</button>
+          <button class="btn btn-secundario" type="reset" {{#unless orden}}disabled{{/unless}}>Limpiar</button>
+        </div>
+      </form>
 
-        <div class="factura">
-          <h3>Resumen de cobro</h3>
-          <div class="fila-resumen">
-            <span>Subtotal</span><span>₡12 400</span>
-          </div>
-          <div class="fila-resumen">
-            <span>Impuesto (13%)</span><span>₡1 612</span>
-          </div>
-          <div class="fila-resumen">
-            <span>Total</span><span>₡14 012</span>
-          </div>
-          <hr>
-          <h3>Factura demostracion</h3>
-          <p><strong>Restaurante:</strong> PuraVia</p>
-          <p><strong>Fecha:</strong> 05/03/2026</p>
-          <p><strong>Mesa:</strong> Número según URL</p>
-          <p><strong>Productos:</strong> Lista de ejemplo</p>
-          <p><strong>Total:</strong> ₡14 012</p>
-          <div class="botones">
-            <button class="btn" type="button">Generar factura</button>
-            <button class="btn btn-secundario" type="button">Imprimir factura</button>
-          </div>
+      <div class="factura">
+        <h3>Resumen de cobro</h3>
+        <div class="fila-resumen">
+          <span>Subtotal</span><span>₡{{subtotal}}</span>
+        </div>
+        <div class="fila-resumen">
+          <span>Impuesto (13%)</span><span>₡{{impuesto}}</span>
+        </div>
+        <div class="fila-resumen">
+          <span>Total</span><span>₡{{total}}</span>
+        </div>
+        <hr>
+        <h3>Factura demostracion</h3>
+        <p><strong>Restaurante:</strong> PuraVia</p>
+        <p><strong>Fecha:</strong> 05/03/2026</p>
+        <p><strong>Mesa:</strong> {{#if mesa}}Mesa {{mesa}}{{else}}No especificada{{/if}}</p>
+        <p><strong>Productos:</strong> {{#if detalles.length}}{{detalles.length}} ítems{{else}}Sin productos{{/if}}</p>
+        <p><strong>Total:</strong> ₡{{total}}</p>
+        <div class="botones">
+          <button class="btn" type="button" onclick="FinalizarOrden()" {{#unless orden}}disabled{{/unless}}>Orden finalizada</button>
+          <button class="btn btn-secundario" type="button" onclick="ImprimirFactura()" {{#unless orden}}disabled{{/unless}}>Imprimir factura</button>
         </div>
       </div>
-      <div class="botones" style="margin-top:1.8rem;">
-        <a class="btn btn-secundario" href="/mesas">Atrás</a>
-      </div>
-    </section>
-  </main>
+    </div>
+    <div class="botones" style="margin-top:1.8rem;">
+      <a class="btn btn-secundario" href="/mesas">Atrás</a>
+    </div>
 
+    <input type="hidden" id="orden-id" value="{{#if orden}}{{orden.id}}{{/if}}">
+  </section>
+</main>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+<script src="/javascripts/gestion-orden-logica.js"></script>

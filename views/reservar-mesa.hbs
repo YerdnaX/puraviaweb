@@ -1,103 +1,82 @@
-﻿<main class="contenedor">
-    <section class="seccion">
-      <h1 class="titulo-seccion">Reservar mesa</h1>
-      <p class="subtitulo">Indica tu nombre y la mesa que deseas reservar. Consulta también las reservas existentes por fecha.</p>
+<main class="contenedor">
+  <section class="seccion">
+    <h1 class="titulo-seccion">Reservar mesa</h1>
+    <p class="subtitulo">Indica tu nombre y la mesa que deseas reservar. Consulta también las reservas existentes por fecha.</p>
 
-      <div class="grid-formularios">
-        <form class="formulario">
-          <h3>Datos de la reserva</h3>
-          <div class="campo">
-            <label for="mesa">Mesa</label>
+    <div class="grid-formularios">
+      <form class="formulario">
+        <h3>Datos de la reserva</h3>
+        <div class="campo">
+          <label for="mesa">Mesa</label>
+          {{#if mesaSeleccionada}}
+            <div style="display:flex; align-items:center; gap:0.8rem;">
+              <span class="chip">Mesa {{mesaSeleccionada.numero}} (capacidad {{mesaSeleccionada.capacidad}})</span>
+            </div>
+            <input id="mesa" type="hidden" value="{{mesaSeleccionada.numero}}">
+          {{else}}
             <select id="mesa" name="mesa">
-              <option>Mesa 1</option>
-              <option>Mesa 2</option>
-              <option>Mesa 3</option>
-              <option>Mesa 4</option>
-              <option>Mesa 5</option>
-              <option>Mesa 6</option>
-              <option>Mesa 7</option>
-              <option>Mesa 8</option>
-              <option>Mesa 9</option>
-              <option>Mesa 10</option>
-              <option>Mesa 11</option>
-              <option>Mesa 12</option>
+              {{#if mesas.length}}
+                {{#each mesas}}
+                  <option value="{{numero}}">Mesa {{numero}} (capacidad {{capacidad}})</option>
+                {{/each}}
+              {{else}}
+                <option disabled>No hay mesas configuradas</option>
+              {{/if}}
             </select>
-          </div>
-          <div class="campo">
-            <label for="nombre">Nombre de quien reserva</label>
-            <input id="nombre" type="text" placeholder="Nombre completo">
-          </div>
-          <div class="campo">
-            <label for="fecha">Fecha</label>
-            <input id="fecha" type="date">
-          </div>
-          <div class="campo">
-            <label for="hora">Hora</label>
-            <input id="hora" type="time">
-          </div>
-          <div class="campo">
-            <label for="notas">Notas adicionales</label>
-            <textarea id="notas" placeholder="Ocasión especial, número de personas, etc."></textarea>
-          </div>
-          <div class="botones">
-            <button class="btn" type="button">Confirmar reserva</button>
-            <button class="btn btn-secundario" type="reset">Limpiar</button>
-          </div>
-        </form>
-
-        <div class="tarjeta">
-          <h3>Reservas programadas</h3>
-          <p>Consulta la disponibilidad por fecha para la mesa seleccionada.</p>
-          <div class="campo" style="margin-top:0.6rem;">
-            <label for="fecha-consulta">Fecha de consulta</label>
-            <input id="fecha-consulta" type="date">
-          </div>
-          <table class="tabla-resumen" style="margin-top:1rem;">
-            <thead>
-              <tr>
-                <th>Hora</th>
-                <th>Nombre</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>12:00</td>
-                <td>Ana Torres</td>
-                <td><span class="estado estado-reservada">Reservada</span></td>
-              </tr>
-              <tr>
-                <td>14:00</td>
-                <td>Disponible</td>
-                <td><span class="estado estado-libre">Libre</span></td>
-              </tr>
-              <tr>
-                <td>19:00</td>
-                <td>Carlos Jiménez</td>
-                <td><span class="estado estado-reservada">Reservada</span></td>
-              </tr>
-            </tbody>
-          </table>
-          <p style="margin-top:0.8rem;">Tabla demostrativa sin funcionalidad: cambia la fecha para revisar otros días y vuelve a Mesas para el estado general.</p>
+          {{/if}}
         </div>
+        <div class="campo">
+          <label for="nombre">Nombre de quien reserva</label>
+          <input id="nombre" type="text" placeholder="Nombre completo">
+        </div>
+        <div class="campo">
+          <label for="fecha">Fecha</label>
+          <input id="fecha" type="date">
+        </div>
+        <div class="campo">
+          <label for="hora">Hora</label>
+          <input id="hora" type="time">
+        </div>
+        <div class="campo">
+          <label for="notas">Notas adicionales</label>
+          <textarea id="notas" placeholder="Ocasión especial, número de personas, etc."></textarea>
+        </div>
+        <div class="botones">
+          <button class="btn" type="button" onclick="CrearReserva()">Confirmar reserva</button>
+          <button class="btn btn-secundario" type="reset">Limpiar</button>
+        </div>
+      </form>
+
+      <div class="tarjeta">
+        <h3>Reservas programadas</h3>
+        <p>Consulta la disponibilidad por fecha para la mesa seleccionada.</p>
+        <div class="campo" style="margin-top:0.6rem;">
+          <label for="fecha-consulta">Fecha de consulta</label>
+          <input id="fecha-consulta" type="date">
+        </div>
+        <table class="tabla-resumen" style="margin-top:1rem;">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Nombre</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="reservas-body">
+            <tr>
+              <td colspan="4">Selecciona fecha y mesa para consultar.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin-top:0.8rem;">Las reservas se muestran por fecha y mesa seleccionada.</p>
       </div>
+    </div>
 
-      <div class="botones" style="margin-top:1.8rem;">
-        <a class="btn btn-secundario" href="/mesas">Atrás</a>
-      </div>
-    </section>
-  </main>
+    <div class="botones" style="margin-top:1.8rem;">
+      <a class="btn btn-secundario" href="/mesas">Atrás</a>
+    </div>
+  </section>
+</main>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+<script src="/javascripts/reservar-mesa-logica.js"></script>

@@ -43,14 +43,14 @@ async function GuardarActualizarMesero() {
 
 window.GuardarActualizarMesero = GuardarActualizarMesero;
 
-async function crearMesero(payload) {
+async function crearMesero(datosparausar) {
     try {
         const resp = await fetch('/api/insertarmesero', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(datosparausar)
         })
 
         const data = await resp.json()
@@ -66,14 +66,14 @@ async function crearMesero(payload) {
     }
 }
 
-async function actualizarMesero(id, usuarioId, payload) {
+async function actualizarMesero(id, usuarioId, datosparausar) {
     try {
         const resp = await fetch(`/api/mesero/${id}?usuarioId=${usuarioId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(datosparausar)
         })
 
         const data = await resp.json()

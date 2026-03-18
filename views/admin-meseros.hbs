@@ -17,10 +17,10 @@
           <th>Acciones</th>
         </tr>
       </thead>
-      <tbody id="tabla-meseros">
+      <tbody>
         {{#if meseros}}
         {{#each meseros}}
-        <tr data-id="{{id}}" data-identificacion="{{identificacion}}" data-usuario-id="{{usuario_id}}">
+        <tr>
           <td>{{nombre}}</td>
           <td>{{identificacion}}</td>
           <td>{{telefono}}</td>
@@ -28,7 +28,8 @@
           <td>{{turno}}</td>
           <td>{{usuario_id}}</td>
           <td>{{observaciones}}</td>
-          <td><button class="btn btn-secundario" type="button" onclick="EliminarMesero({{id}}, {{usuario_id}})">Eliminar</button></td>
+          <td><button class="btn btn-secundario" type="button"
+              onclick="EliminarMesero({{id}}, {{usuario_id}})">Eliminar</button></td>
         </tr>
         {{/each}}
         {{else}}
@@ -87,7 +88,6 @@
 
       <div class="botones">
         <button class="btn" type="button" onclick="GuardarActualizarMesero()">Guardar / Actualizar</button>
-        <button class="btn btn-secundario" type="button">Eliminar</button>
         <button class="btn btn-secundario" type="reset">Limpiar</button>
       </div>
 
@@ -96,6 +96,8 @@
       </div>
     </form>
   </section>
+  <img src="images/mesero.png" alt="Perezoso mesero" style="margin-top:2rem; max-width:300px; display:block; margin-left:auto; margin-right:auto;">
+
 </main>
 
 <script src="/javascripts/admin-meseros-logica.js"></script>

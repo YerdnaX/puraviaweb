@@ -3,6 +3,8 @@ var router = express.Router()
 var database = require('./database')
 var sql = database.sql
 var crypto = require('crypto')
+var fs = require('fs')
+var path = require('path')
 
 // Helper simple para hash de contrasena (sha256)
 function hashPassword(plain) {
@@ -356,6 +358,314 @@ router.put('/mesero/:id', async function (req, res, next) {
         await transaction.rollback()
         console.error('Error al actualizar mesero:', err)
         res.status(500).json({ error: 'Error al actualizar mesero' })
+    }
+})
+
+// Cerrar orden y liberar mesa
+router.post('/orden/:id/cerrar', async function (req, res, next) {
+    const ordenId = parseInt(req.params.id, 10)
+    if (!ordenId) return res.status(400).json({ error: 'Id de orden invalido' })
+
+    const pool = await database.poolPromise
+    const transaction = new sql.Transaction(pool)
+    await transaction.begin()
+    try {
+        const ordRs = await new sql.Request(transaction)
+            .input('ordenId', sql.Int, ordenId)
+            .query(`SELECT id, mesa_id FROM orden WHERE id = @ordenId AND estado = 'abierta'`)
+
+        if (!ordRs.recordset.length) {
+            await transaction.rollback()
+            return res.status(404).json({ error: 'Orden no encontrada o ya cerrada' })
+        }
+
+        const mesaId = ordRs.recordset[0].mesa_id
+
+        const totRs = await new sql.Request(transaction)
+            .input('ordenId', sql.Int, ordenId)
+            .query(`SELECT SUM(subtotal) AS subtotal FROM orden_detalle WHERE orden_id = @ordenId`)
+        const subtotal = Number(totRs.recordset[0].subtotal || 0)
+        const impuesto = Number((subtotal * 0.13).toFixed(2))
+        const total = Number((subtotal + impuesto).toFixed(2))
+
+        await new sql.Request(transaction)
+            .input('total', sql.Decimal(12, 2), total)
+            .input('ordenId', sql.Int, ordenId)
+            .query(`UPDATE orden
+                    SET estado = 'cerrada',
+                        total = @total,
+                        cerrada_en = SYSDATETIME()
+                    WHERE id = @ordenId`)
+
+        await new sql.Request(transaction)
+            .input('mesaId', sql.Int, mesaId)
+            .query(`UPDATE mesa SET estado = 'libre' WHERE id = @mesaId`)
+
+        await transaction.commit()
+        res.json({ ok: true, subtotal, impuesto, total })
+    } catch (err) {
+        await transaction.rollback()
+        console.error('Error al cerrar orden:', err)
+        res.status(500).json({ error: 'Error al cerrar orden' })
+    }
+})
+
+// Agregar producto a orden abierta
+router.post('/orden/:id/agregar', async function (req, res, next) {
+    const ordenId = parseInt(req.params.id, 10)
+    const { productoId, cantidad, observaciones } = req.body
+
+    if (!ordenId) return res.status(400).json({ error: 'Id de orden invalido' })
+    if (!productoId || !cantidad || cantidad < 1) {
+        return res.status(400).json({ error: 'Producto y cantidad son obligatorios' })
+    }
+
+    const pool = await database.poolPromise
+    const transaction = new sql.Transaction(pool)
+    await transaction.begin()
+    try {
+        // validar orden abierta
+        const ord = await new sql.Request(transaction)
+            .input('ordenId', sql.Int, ordenId)
+            .query(`SELECT estado FROM orden WHERE id = @ordenId`)
+        if (!ord.recordset.length) {
+            await transaction.rollback()
+            return res.status(404).json({ error: 'Orden no encontrada' })
+        }
+        if (ord.recordset[0].estado !== 'abierta') {
+            await transaction.rollback()
+            return res.status(400).json({ error: 'La orden no está abierta' })
+        }
+
+        // obtener precio del producto
+        const prod = await new sql.Request(transaction)
+            .input('prodId', sql.Int, productoId)
+            .query(`SELECT precio FROM producto WHERE id = @prodId AND activo = 1`)
+        if (!prod.recordset.length) {
+            await transaction.rollback()
+            return res.status(404).json({ error: 'Producto no encontrado o inactivo' })
+        }
+        const precioUnit = prod.recordset[0].precio
+
+        // insertar detalle
+        await new sql.Request(transaction)
+            .input('ordenId', sql.Int, ordenId)
+            .input('prodId', sql.Int, productoId)
+            .input('cantidad', sql.Int, cantidad)
+            .input('precio', sql.Decimal(10,2), precioUnit)
+            .input('obs', sql.VarChar, observaciones || null)
+            .query(`INSERT INTO orden_detalle (orden_id, producto_id, cantidad, precio_unit, observaciones)
+                    VALUES (@ordenId, @prodId, @cantidad, @precio, @obs)`)
+
+        await transaction.commit()
+        res.json({ ok: true })
+    } catch (err) {
+        await transaction.rollback()
+        console.error('Error al agregar producto a orden:', err)
+        res.status(500).json({ error: 'Error al agregar producto a la orden' })
+    }
+})
+
+// Crear reserva de mesa
+router.post('/reserva', async function (req, res, next) {
+    const { mesa, nombre, telefono, fecha, hora, notas, cantidad_personas } = req.body
+
+    if (!mesa || !nombre || !fecha || !hora) {
+        return res.status(400).json({ error: 'Mesa, nombre, fecha y hora son obligatorios' })
+    }
+
+    const fechaHoraIso = `${fecha}T${hora}`
+    const fechaHora = new Date(fechaHoraIso)
+    if (isNaN(fechaHora.getTime())) {
+        return res.status(400).json({ error: 'Fecha u hora inválida' })
+    }
+
+    try {
+        const pool = await database.poolPromise
+
+        // localizar mesa por numero
+        const mesaRs = await pool.request()
+            .input('numero', sql.Int, parseInt(mesa, 10))
+            .query('SELECT id FROM mesa WHERE numero = @numero')
+        if (!mesaRs.recordset.length) {
+            return res.status(404).json({ error: 'Mesa no encontrada' })
+        }
+        const mesaId = mesaRs.recordset[0].id
+
+        // verificar conflicto exacto fecha/hora para esa mesa
+        const dup = await pool.request()
+            .input('mesaId', sql.Int, mesaId)
+            .input('fechaConsulta', sql.Date, fecha)
+            .input('horaConsulta', sql.VarChar, hora)
+            .query(`SELECT COUNT(1) AS cnt
+                    FROM reserva
+                    WHERE mesa_id = @mesaId
+                      AND CAST(fecha_hora AS date) = @fechaConsulta
+                      AND FORMAT(fecha_hora, 'HH:mm') = @horaConsulta
+                      AND estado <> 'cancelada'`)
+        if (dup.recordset[0].cnt > 0) {
+            return res.status(400).json({ error: 'Ya existe una reserva para esa mesa en la misma hora' })
+        }
+
+        await pool.request()
+            .input('mesaId', sql.Int, mesaId)
+            .input('nombre', sql.VarChar, nombre)
+            .input('telefono', sql.VarChar, telefono || null)
+            .input('fechaHora', sql.DateTime2, fechaHora)
+            .input('cant', sql.Int, cantidad_personas || null)
+            .input('nota', sql.VarChar, notas || null)
+            .query(`INSERT INTO reserva (mesa_id, cliente_nombre, cliente_telefono, fecha_hora, cantidad_personas, nota)
+                    VALUES (@mesaId, @nombre, @telefono, @fechaHora, ISNULL(@cant, 2), @nota)`)
+
+        res.json({ ok: true, message: 'Reserva creada' })
+    } catch (err) {
+        console.error('Error al crear reserva:', err)
+        res.status(500).json({ error: 'Error al crear reserva' })
+    }
+})
+
+// Consultar reservas por mesa y fecha
+router.get('/reserva', async function (req, res, next) {
+    const mesa = parseInt(req.query.mesa, 10)
+    const fecha = req.query.fecha
+
+    if (!mesa || !fecha) {
+        return res.status(400).json({ error: 'Mesa y fecha son obligatorios' })
+    }
+
+    try {
+        const pool = await database.poolPromise
+
+        const rs = await pool.request()
+            .input('numero', sql.Int, mesa)
+            .input('fechaConsulta', sql.Date, fecha)
+            .query(`SELECT r.id, CONVERT(VARCHAR(5), r.fecha_hora, 108) AS hora, r.cliente_nombre, r.estado
+                    FROM reserva r
+                    JOIN mesa m ON r.mesa_id = m.id
+                    WHERE m.numero = @numero AND CAST(r.fecha_hora AS date) = @fechaConsulta
+                    ORDER BY r.fecha_hora`)
+
+        res.json({ ok: true, reservas: rs.recordset })
+    } catch (err) {
+        console.error('Error al consultar reservas:', err)
+        res.status(500).json({ error: 'Error al consultar reservas' })
+    }
+})
+
+// Eliminar reserva
+router.delete('/reserva/:id', async function (req, res, next) {
+    const id = parseInt(req.params.id, 10)
+    if (!id) return res.status(400).json({ error: 'Id invalido' })
+
+    try {
+        const pool = await database.poolPromise
+        const result = await pool.request()
+            .input('id', sql.Int, id)
+            .query('DELETE FROM reserva WHERE id = @id')
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ error: 'Reserva no encontrada' })
+        }
+
+        res.json({ ok: true, message: 'Reserva eliminada' })
+    } catch (err) {
+        console.error('Error al eliminar reserva:', err)
+        res.status(500).json({ error: 'Error al eliminar reserva' })
+    }
+})
+
+// Actualizar estado de reserva
+router.put('/reserva/:id/estado', async function (req, res, next) {
+    const id = parseInt(req.params.id, 10)
+    const { estado } = req.body
+    if (!id) return res.status(400).json({ error: 'Id invalido' })
+    if (!estado || !['pendiente', 'confirmada', 'cancelada'].includes(estado)) {
+        return res.status(400).json({ error: 'Estado invalido' })
+    }
+
+    try {
+        const pool = await database.poolPromise
+        const result = await pool.request()
+            .input('id', sql.Int, id)
+            .input('estado', sql.VarChar, estado)
+            .query('UPDATE reserva SET estado = @estado WHERE id = @id')
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ error: 'Reserva no encontrada' })
+        }
+
+        res.json({ ok: true, message: 'Estado actualizado' })
+    } catch (err) {
+        console.error('Error al actualizar estado de reserva:', err)
+        res.status(500).json({ error: 'Error al actualizar estado de reserva' })
+    }
+})
+
+// Generar archivo de factura (JSON) para una orden
+router.post('/orden/:id/imprimir', async function (req, res, next) {
+    const ordenId = parseInt(req.params.id, 10)
+    if (!ordenId) return res.status(400).json({ error: 'Id de orden invalido' })
+
+    try {
+        const pool = await database.poolPromise
+
+        const ordRs = await pool.request()
+            .input('ordenId', sql.Int, ordenId)
+            .query(`SELECT o.id, o.mesa_id, o.estado, o.total, o.creada_en, o.cerrada_en, m.numero AS mesa_numero
+                    FROM orden o
+                    JOIN mesa m ON o.mesa_id = m.id
+                    WHERE o.id = @ordenId`)
+
+        if (!ordRs.recordset.length) {
+            return res.status(404).json({ error: 'Orden no encontrada' })
+        }
+        const orden = ordRs.recordset[0]
+
+        const detRs = await pool.request()
+            .input('ordenId', sql.Int, ordenId)
+            .query(`SELECT od.id, p.nombre, od.cantidad, od.precio_unit, od.subtotal, od.observaciones
+                    FROM orden_detalle od
+                    JOIN producto p ON od.producto_id = p.id
+                    WHERE od.orden_id = @ordenId`)
+        const detalles = detRs.recordset
+
+        const totRs = await pool.request()
+            .input('ordenId', sql.Int, ordenId)
+            .query(`SELECT SUM(subtotal) AS subtotal FROM orden_detalle WHERE orden_id = @ordenId`)
+        const subtotal = Number(totRs.recordset[0].subtotal || 0)
+        const impuesto = Number((subtotal * 0.13).toFixed(2))
+        const total = Number((subtotal + impuesto).toFixed(2))
+
+        const factura = {
+            orden_id: orden.id,
+            mesa: orden.mesa_numero,
+            estado: orden.estado,
+            creada_en: orden.creada_en,
+            cerrada_en: orden.cerrada_en,
+            items: detalles.map(d => ({
+                id: d.id,
+                producto: d.nombre,
+                cantidad: d.cantidad,
+                precio_unit: Number(d.precio_unit),
+                subtotal: Number(d.subtotal),
+                observaciones: d.observaciones
+            })),
+            subtotal,
+            impuesto,
+            total
+        }
+
+        const facturasDir = path.join(__dirname, '..', 'facturas')
+        if (!fs.existsSync(facturasDir)) {
+            fs.mkdirSync(facturasDir, { recursive: true })
+        }
+        const filePath = path.join(facturasDir, `factura_${ordenId}.json`)
+        fs.writeFileSync(filePath, JSON.stringify(factura, null, 2), 'utf8')
+
+        res.json({ ok: true, message: 'Factura generada', archivo: filePath })
+    } catch (err) {
+        console.error('Error al generar factura:', err)
+        res.status(500).json({ error: 'Error al generar factura' })
     }
 })
 

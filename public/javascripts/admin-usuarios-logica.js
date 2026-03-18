@@ -23,27 +23,27 @@ async function GuardarActualizarUsuario() {
         `#tabla-usuarios tr[data-username="${usuario}"]`
     )
 
-    const payload = { nombre, correo, usuario, password, estado, notas }
+    const datosparausar = { nombre, correo, usuario, password, estado, notas }
 
     if (filaExistente) {
         const id = filaExistente.dataset.id
         const confirmar = confirm('Este usuario ya existe. ¿Deseas actualizarlo?')
         if (!confirmar) return
-        await actualizarUsuario(id, payload)
+        await actualizarUsuario(id, datosparausar)
     } else {
-        await crearUsuario(payload)
+        await crearUsuario(datosparausar)
     }
 }
 
 
 window.GuardarActualizarUsuario = GuardarActualizarUsuario
 
-async function crearUsuario(payload) {
+async function crearUsuario(datosparausar) {
     try {
         const resp = await fetch('/api/insertarusuario', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(datosparausar)
         })
         const data = await resp.json()
         if (!resp.ok || data.error) {
@@ -57,12 +57,12 @@ async function crearUsuario(payload) {
     }
 }
 
-async function actualizarUsuario(id, payload) {
+async function actualizarUsuario(id, datosparausar) {
     try {
         const resp = await fetch(`/api/usuario/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(datosparausar)
         })
         const data = await resp.json()
         if (!resp.ok || data.error) {
